@@ -35,7 +35,7 @@ public class CommunityActivity extends AppCompatActivity {
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, communities);
         communityListView.setAdapter(adapter);
 
-        // Search filter
+
         searchCommunity.addTextChangedListener(new TextWatcher() {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adapter.getFilter().filter(s);
@@ -44,7 +44,7 @@ public class CommunityActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        // Add new community
+
         addCommunityBtn.setOnClickListener(v -> {
             final EditText input = new EditText(this);
             new AlertDialog.Builder(this)
@@ -63,7 +63,6 @@ public class CommunityActivity extends AppCompatActivity {
                     .show();
         });
 
-        // Open chat
         communityListView.setOnItemClickListener((parent, view, position, id) -> {
             String selected = adapter.getItem(position);
             Intent intent = new Intent(CommunityActivity.this, ChatActivity.class);

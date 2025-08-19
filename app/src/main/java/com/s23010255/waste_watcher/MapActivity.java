@@ -1,223 +1,201 @@
 package com.s23010255.waste_watcher;
 
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.*;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
-import android.widget.*;
-import androidx.annotation.NonNull;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
-import com.google.android.gms.location.*;
-import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import org.json.*;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+    private GoogleMap mMap;
+    private List<LatLng> binList = new ArrayList<>();
+    private SharedPreferences sharedPreferences;
+    private static final String BIN_LIST_KEY = "bin_list";
+    private EditText searchInput;
 
-        private GoogleMap mMap;
-        private FusedLocationProviderClient fusedLocationProviderClient;
-        private LatLng userLocation;
-        private LatLng selectedLocation;
-        private Polyline currentRoute;
-        private final List<LatLng> binLocations = new ArrayList<>();
 
-        EditText searchInput;
-        Button findNearestBtn, addBinHereBtn;
+    private Map<String, LatLng> predefinedBins = new HashMap<String, LatLng>() {{
+        put("Kurunegala", new LatLng(7.4867, 80.3649));
+        put("Kandy", new LatLng(7.2906, 80.6337));
+        put("Nawala", new LatLng(6.9100, 79.9400));
+        put("Matara", new LatLng(5.9481, 80.5357));
+        put("Jaffna", new LatLng(9.6615, 80.0255));
+    }};
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_map);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_map);
 
-            searchInput = findViewById(R.id.searchInput);
-            findNearestBtn = findViewById(R.id.findNearestBtn);
-            addBinHereBtn = findViewById(R.id.addBinHereBtn);
+        sharedPreferences = getSharedPreferences("MapPrefs", Context.MODE_PRIVATE);
+        loadBins();
 
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        searchInput = findViewById(R.id.searchInput);
 
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.mapFragment);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapFragment);
+        if (mapFragment != null) {
             mapFragment.getMapAsync(this);
-
-            // Search input handler
-            searchInput.setOnEditorActionListener((v, actionId, event) -> {
-                String query = searchInput.getText().toString();
-                if (!query.isEmpty()) {
-                    geocodeAndPlace(query);
-                }
-                return true;
-            });
-
-            // Add bin button
-            addBinHereBtn.setOnClickListener(v -> {
-                if (selectedLocation != null) {
-                    binLocations.add(selectedLocation);
-                    mMap.addMarker(new MarkerOptions()
-                            .position(selectedLocation)
-                            .title("User Bin")
-                            .snippet("Added by user")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.nearbin)));
-                }
-            });
-
-            // Find nearest bin from selected location
-            findNearestBtn.setOnClickListener(v -> {
-                if (selectedLocation != null && !binLocations.isEmpty()) {
-                    LatLng nearest = findNearestBin(selectedLocation);
-                    fetchRouteFromGoogle(selectedLocation, nearest);
-                }
-            });
         }
 
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
 
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-                return;
+        searchInput.setOnEditorActionListener((v, actionId, event) -> {
+            String locationName = searchInput.getText().toString();
+            if (!locationName.isEmpty()) {
+                searchLocation(locationName);
             }
+            return true;
+        });
+    }
 
-            mMap.setMyLocationEnabled(true);
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
-                if (location != null) {
-                    userLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    selectedLocation = userLocation;
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
 
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15));
-                    mMap.addMarker(new MarkerOptions().position(userLocation).title("You are here"));
 
-                    // Predefined bins
-                    binLocations.add(new LatLng(6.9271, 79.8612));
-                    binLocations.add(new LatLng(6.9330, 79.8500));
-                    binLocations.add(new LatLng(6.9100, 79.8600));
-
-                    for (LatLng bin : binLocations) {
-                        mMap.addMarker(new MarkerOptions()
-                                .position(bin)
-                                .title("Public Bin")
-                                .snippet("Recyclable")
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.nearbin)));
-                    }
-                }
-            });
-
-            // Tap map to select new location
-            mMap.setOnMapLongClickListener(latLng -> {
-                selectedLocation = latLng;
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Selected Point"));
-            });
+        for (Map.Entry<String, LatLng> entry : predefinedBins.entrySet()) {
+            addBin(entry.getValue(), entry.getKey());
         }
 
-        // Geocode search string to coordinates
-        private void geocodeAndPlace(String locationName) {
-            Geocoder geocoder = new Geocoder(this);
-            try {
-                List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
-                if (!addresses.isEmpty()) {
-                    Address address = addresses.get(0);
-                    LatLng found = new LatLng(address.getLatitude(), address.getLongitude());
-                    selectedLocation = found;
-                    mMap.addMarker(new MarkerOptions().position(found).title("Searched Location"));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(found, 15));
-                } else {
-                    Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+
+        for (LatLng bin : binList) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(bin)
+                    .title("Saved Bin")
+                    .icon(BitmapDescriptorFactory.fromBitmap(getResizedMarker(R.drawable.nearbin, 80, 80))));
+        }
+
+
+        mMap.setOnMapClickListener(latLng -> {
+            findNearestBin(latLng);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Add Bin")
+                    .setMessage("Do you want to add a bin at this location?")
+                    .setPositiveButton("Yes", (dialog, which) -> addBin(latLng, "User Bin"))
+                    .setNegativeButton("No", null)
+                    .show();
+        });
+    }
+
+
+    private void addBin(LatLng location, String title) {
+        if (!binList.contains(location)) {
+            binList.add(location);
+            mMap.addMarker(new MarkerOptions()
+                    .position(location)
+                    .title(title)
+                    .icon(BitmapDescriptorFactory.fromBitmap(getResizedMarker(R.drawable.nearbin, 80, 80))));
+            saveBins();
+        }
+    }
+
+
+    private Bitmap getResizedMarker(int resId, int width, int height) {
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), resId);
+        return Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+    }
+
+    private void saveBins() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(binList);
+        editor.putString(BIN_LIST_KEY, json);
+        editor.apply();
+    }
+
+    private void loadBins() {
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString(BIN_LIST_KEY, null);
+        Type type = new TypeToken<ArrayList<LatLng>>() {}.getType();
+        List<LatLng> savedBins = gson.fromJson(json, type);
+        if (savedBins != null) {
+            binList = savedBins;
+        }
+    }
+
+    private void searchLocation(String locationName) {
+        Geocoder geocoder = new Geocoder(this);
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(locationName, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                mMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(locationName)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+
+                findNearestBin(latLng);
+
+
+                new AlertDialog.Builder(this)
+                        .setTitle("Add Bin")
+                        .setMessage("Do you want to add a bin at this location?")
+                        .setPositiveButton("Yes", (dialog, which) -> addBin(latLng, "User Bin"))
+                        .setNegativeButton("No", null)
+                        .show();
+
+            } else {
+                Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Geocoder error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void findNearestBin(LatLng current) {
+        if (binList.isEmpty()) return;
+
+        LatLng nearest = null;
+        float minDistance = Float.MAX_VALUE;
+        float[] result = new float[1];
+
+        for (LatLng bin : binList) {
+            Location.distanceBetween(current.latitude, current.longitude, bin.latitude, bin.longitude, result);
+            if (result[0] < minDistance) {
+                minDistance = result[0];
+                nearest = bin;
             }
         }
 
-        private LatLng findNearestBin(LatLng point) {
-            float minDistance = Float.MAX_VALUE;
-            LatLng nearest = binLocations.get(0);
-            float[] result = new float[1];
-
-            for (LatLng bin : binLocations) {
-                Location.distanceBetween(point.latitude, point.longitude, bin.latitude, bin.longitude, result);
-                if (result[0] < minDistance) {
-                    minDistance = result[0];
-                    nearest = bin;
-                }
-            }
-            return nearest;
-        }
-
-        private void fetchRouteFromGoogle(LatLng origin, LatLng destination) {
-            String apiKey = "YOUR_API_KEY"; // replace with your real API key
-            String url = "https://maps.googleapis.com/maps/api/directions/json?origin="
-                    + origin.latitude + "," + origin.longitude +
-                    "&destination=" + destination.latitude + "," + destination.longitude +
-                    "&mode=walking&key=" + apiKey;
-
-            new Thread(() -> {
-                try {
-                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-                    connection.connect();
-
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder result = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) result.append(line);
-
-                    JSONObject response = new JSONObject(result.toString());
-                    JSONArray routes = response.getJSONArray("routes");
-                    if (routes.length() > 0) {
-                        String encoded = routes.getJSONObject(0)
-                                .getJSONObject("overview_polyline").getString("points");
-                        List<LatLng> path = decodePoly(encoded);
-
-                        runOnUiThread(() -> {
-                            if (currentRoute != null) currentRoute.remove();
-                            currentRoute = mMap.addPolyline(new PolylineOptions()
-                                    .addAll(path).width(10).color(Color.BLUE));
-                        });
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        }
-
-        private List<LatLng> decodePoly(String encoded) {
-            List<LatLng> poly = new ArrayList<>();
-            int index = 0, len = encoded.length(), lat = 0, lng = 0;
-
-            while (index < len) {
-                int b, shift = 0, result = 0;
-                do { b = encoded.charAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; }
-                while (b >= 0x20);
-                lat += ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-
-                shift = 0; result = 0;
-                do { b = encoded.charAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; }
-                while (b >= 0x20);
-                lng += ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-
-                poly.add(new LatLng(lat / 1E5, lng / 1E5));
-            }
-            return poly;
-        }
-
-        @Override
-        public void onRequestPermissionsResult(int requestCode,
-                                               @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == 101 && grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            onMapReady(mMap);
+        if (nearest != null) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(nearest)
+                    .title("Nearest Bin")
+                    .icon(BitmapDescriptorFactory.fromBitmap(getResizedMarker(R.drawable.nearbin, 80, 80))));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(nearest, 15));
+            Toast.makeText(this, "Nearest bin found", Toast.LENGTH_SHORT).show();
         }
     }
 }

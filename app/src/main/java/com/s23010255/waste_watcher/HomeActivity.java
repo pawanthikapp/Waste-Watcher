@@ -15,14 +15,14 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Initialize cards
+
         cardChallenges = findViewById(R.id.cardChallenges);
         cardCommunity = findViewById(R.id.cardCommunity);
         cardProfile = findViewById(R.id.cardProfile);
         cardMap = findViewById(R.id.cardMap);
         cardPoints = findViewById(R.id.cardPoints);
 
-        // Set click listeners
+
         cardMap.setOnClickListener(v ->
                 startActivity(new Intent(HomeActivity.this, MapActivity.class)));
 

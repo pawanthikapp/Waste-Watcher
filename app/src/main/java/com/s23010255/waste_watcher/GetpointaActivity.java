@@ -1,39 +1,37 @@
 package com.s23010255.waste_watcher;
 
-import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.google.android.gms.location.*;
 import com.google.android.gms.maps.*;
-import com.google.android.gms.maps.model.*;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 public class GetpointaActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private ImageView imagePreview;
     private TextView locationTextView;
-    private EditText descriptionEditText;
+    private EditText descriptionEditText, addressInput;
     private Uri imageUri;
-    private FusedLocationProviderClient fusedLocationClient;
     private GoogleMap gMap;
-    private LatLng currentLatLng;
-    private Button submitButton, uploadAfterImageButton;
+    private Button submitButton, uploadAfterImageButton, searchBtn;
 
     private ActivityResultLauncher<Intent> pickAfterImageLauncher;
+
+
+    private int totalPoints = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +41,24 @@ public class GetpointaActivity extends AppCompatActivity implements OnMapReadyCa
         imagePreview = findViewById(R.id.imagePreviewafter);
         locationTextView = findViewById(R.id.textView19);
         descriptionEditText = findViewById(R.id.editTextTextMultiLine);
+
+        addressInput = findViewById(R.id.textloc);
+
         submitButton = findViewById(R.id.button6);
         uploadAfterImageButton = findViewById(R.id.buttonUploadAfter);
+        searchBtn = findViewById(R.id.searchbtn);
 
-        // Image picker launcher
+
+        totalPoints = getIntent().getIntExtra("total_points", 0);
+
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
+
+
         pickAfterImageLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -59,6 +71,7 @@ public class GetpointaActivity extends AppCompatActivity implements OnMapReadyCa
                                 imagePreview.setImageBitmap(bitmap);
                             } catch (IOException e) {
                                 e.printStackTrace();
+                                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -76,57 +89,49 @@ public class GetpointaActivity extends AppCompatActivity implements OnMapReadyCa
             Intent submitIntent = new Intent(GetpointaActivity.this, SubmitSuccessActivity.class);
             submitIntent.putExtra("description", desc);
             submitIntent.putExtra("location", locationText);
-            if (imageUri != null)
+            submitIntent.putExtra("total_points", totalPoints);
+            if (imageUri != null) {
                 submitIntent.putExtra("after_image_uri", imageUri.toString());
+            }
             startActivity(submitIntent);
         });
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(this);
-        }
-    }
-
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
-        gMap = googleMap;
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-
-            gMap.setMyLocationEnabled(true);
-
-            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
-                if (location != null) {
-                    currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
-                    gMap.addMarker(new MarkerOptions().position(currentLatLng).title("Current Location"));
-
-                    String locationText = String.format("Lat: %.5f, Lng: %.5f",
-                            location.getLatitude(), location.getLongitude());
-                    locationTextView.setText(locationText);
-                }
-            });
-        } else {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1001 && grantResults.length > 0 &&
-                grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.map);
-            if (mapFragment != null) {
-                mapFragment.getMapAsync(this);
+        searchBtn.setOnClickListener(v -> {
+            String location = addressInput.getText().toString().trim();
+            if (!location.isEmpty()) {
+                findLocationOnMap(location);
+            } else {
+                Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show();
             }
+        });
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        gMap = googleMap;
+    }
+
+    private void findLocationOnMap(String locationName) {
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addressList = geocoder.getFromLocationName(locationName, 1);
+            if (addressList != null && !addressList.isEmpty()) {
+                Address address = addressList.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+                gMap.clear();
+                gMap.addMarker(new MarkerOptions().position(latLng).title(locationName));
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+
+                // Update location TextView with coordinates
+                locationTextView.setText("Lat: " + latLng.latitude + ", Lng: " + latLng.longitude);
+
+            } else {
+                Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Geocoding failed", Toast.LENGTH_SHORT).show();
         }
     }
 }

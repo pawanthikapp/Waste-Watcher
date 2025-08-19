@@ -4,36 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2f6f4e"
+    android:background="#A2F6CB"
     tools:context=".HomeActivity">
 
-    <!-- Profile Icon -->
-    <ImageView
-        android:id="@+id/profileIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:contentDescription="Profile"
-        android:src="@drawable/image1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Welcome Message -->
     <TextView
         android:id="@+id/welcomeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="Welcome Back, Guys!"
         android:textColor="#090000"
-        android:textSize="24sp"
+        android:textSize="34sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Search Bar -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchBarLayout"
         android:layout_width="0dp"
@@ -48,10 +35,12 @@
             android:id="@+id/searchBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#DDD379"
+            android:backgroundTint="#EADE7A"
             android:hint="Search..." />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Card: Challenges -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardChallenges"
         android:layout_width="0dp"
@@ -67,15 +56,19 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#EA6391"
+            android:background="#466985"
+            android:backgroundTint="#E19797"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="82dp"
+                android:layout_height="90dp"
+                android:baselineAlignBottom="false"
+                android:clickable="false"
                 android:contentDescription="Challenges"
-                android:src="@drawable/challenge" />
+                android:src="@drawable/challenge"
+                android:textAlignment="center" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -88,7 +81,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Card: Community (fixed ID here) -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardCommunity"
         android:layout_width="0dp"
@@ -105,14 +98,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#EA6391"
+            android:backgroundTint="#E19797"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="87dp"
+                android:layout_height="85dp"
                 android:contentDescription="Community"
-                android:src="@drawable/community" />
+                android:src="@drawable/community"
+                android:textAlignment="center" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -124,7 +119,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Card: Profile -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardProfile"
         android:layout_width="0dp"
@@ -141,14 +136,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#EA6391"
+            android:backgroundTint="#E19797"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="85dp"
+                android:layout_height="100dp"
                 android:contentDescription="Profile"
-                android:src="@drawable/profile" />
+                android:src="@drawable/profile"
+                android:textAlignment="center" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -160,7 +157,7 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Card: Interactive Map -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardMap"
         android:layout_width="0dp"
@@ -177,14 +174,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#EA6391"
+            android:backgroundTint="#E19797"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
                 android:contentDescription="Interactive Map"
-                android:src="@drawable/map" />
+                android:src="@drawable/map"
+                android:textAlignment="center" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -196,17 +195,15 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Card: Clean and Get Points -->
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardPoints"
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="24dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cardMap">
@@ -215,14 +212,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#EA6391"
+            android:backgroundTint="#E19797"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="83dp"
+                android:layout_height="78dp"
+                android:clickable="false"
                 android:contentDescription="Clean and Get Points"
-                android:src="@drawable/star" />
+                android:src="@drawable/star"
+                android:textAlignment="center" />
 
             <TextView
                 android:layout_width="187dp"

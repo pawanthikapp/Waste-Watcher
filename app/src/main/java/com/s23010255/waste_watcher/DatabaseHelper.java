@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.*;
+import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -22,12 +23,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createTable = "CREATE TABLE " + TABLE_USERS + " (" +
+        String createQuery = "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
                 COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COL_USERNAME + " TEXT, " +
-                COL_EMAIL + " TEXT UNIQUE, " + // ensure email is unique
+                COL_EMAIL + " TEXT UNIQUE, " +
                 COL_PASSWORD + " TEXT)";
-        db.execSQL(createTable);
+        db.execSQL(createQuery);
+
+
+        db.execSQL("INSERT OR IGNORE INTO " + TABLE_USERS +
+                " (" + COL_USERNAME + ", " + COL_EMAIL + ", " + COL_PASSWORD + ") " +
+                "VALUES ('testuser', 'test@email.com', '1234')");
     }
 
     @Override
@@ -36,48 +42,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+
     public boolean registerUser(String username, String email, String password) {
+        if (isUserExists(email)) {
+            return false;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COL_USERNAME, username);
         values.put(COL_EMAIL, email);
         values.put(COL_PASSWORD, password);
+
         long result = db.insert(TABLE_USERS, null, values);
-        db.close();
+
+        Log.d("DB_REGISTER", "Insert result: " + result);
+        Log.d("SIGNUP_DEBUG", "registerUser called");
+        Log.d("SIGNUP_DEBUG", "Values: " + username + ", " + email + ", " + password);
+
         return result != -1;
     }
+
 
     public boolean checkUser(String username, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
                 "SELECT * FROM " + TABLE_USERS + " WHERE " + COL_USERNAME + "=? AND " + COL_PASSWORD + "=?",
                 new String[]{username, password});
-        boolean exists = cursor.getCount() > 0;
+
+        boolean exists = cursor.moveToFirst();
         cursor.close();
-        db.close();
         return exists;
     }
+
 
     public boolean isUserExists(String email) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(
                 "SELECT * FROM " + TABLE_USERS + " WHERE " + COL_EMAIL + "=?",
                 new String[]{email});
-        boolean exists = cursor.getCount() > 0;
-        cursor.close();
-        db.close();
-        return exists;
-    }
 
-    public String getUsernameByEmail(String email) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT " + COL_USERNAME + " FROM " + TABLE_USERS + " WHERE " + COL_EMAIL + "=?", new String[]{email});
-        String username = "";
-        if (cursor.moveToFirst()) {
-            username = cursor.getString(0);
-        }
+        boolean exists = cursor.moveToFirst();
         cursor.close();
-        db.close();
-        return username;
+        return exists;
     }
 }

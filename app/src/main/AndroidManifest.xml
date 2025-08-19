@@ -5,11 +5,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- For Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <!-- For Android 12 and below -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
 
 
 
@@ -25,6 +25,9 @@
         android:theme="@style/Theme.Waste_Watcher"
         tools:targetApi="31">
 
+
+
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDpKtdFFoJsqAy-ObuPxbNMU7GGOOMsmMM" />
@@ -39,12 +42,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Other Activities -->
+
         <activity android:name=".LoginActivity" android:exported="true" />
         <activity android:name=".SignUpActivity" android:exported="true" />
         <activity android:name=".HomeActivity" android:exported="true" />
         <activity android:name=".MapActivity" android:exported="true" />
-        <activity android:name=".ProfileActivity"/>
+        <activity android:name=".ProfileActivity" android:exported="true" />
         <activity android:name=".GetpointintroActivity" android:exported="true" />
         <activity android:name=".GetpointbActivity" android:exported="true" />
         <activity android:name=".GetpointaActivity" android:exported="true" />
@@ -52,6 +55,12 @@
         <activity android:name=".ChallengesActivity" android:exported="true" />
         <activity android:name=".CommunityActivity" android:exported="true" />
         <activity android:name=".ChatActivity" android:exported="true" />
+        <activity android:name=".DatabaseHelper" android:exported="true" />
+        <activity android:name=".DailyChallengeActivity" android:exported="true" />
+        <activity android:name=".WeeklyChallengeActivity" android:exported="true" />
+        <activity android:name=".QuizQuestion" android:exported="true" />
+
+
 
 
 

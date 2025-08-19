@@ -9,41 +9,39 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="388dp"
-        android:layout_height="261dp"
+        android:layout_width="391dp"
+        android:layout_height="227dp"
         android:text="  Waste Watcher"
-        android:textColor="#000000"
-        android:textColorHighlight="#000000"
-        android:textColorHint="#000000"
+        android:textColor="#D9E840"
         android:textColorLink="#0E0D0D"
         android:textSize="96sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.695"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.617" />
+        app:layout_constraintVertical_bias="0.558" />
 
     <Button
         android:id="@+id/button4"
         android:layout_width="266dp"
         android:layout_height="74dp"
-        android:backgroundTint="#CF78DD"
+        android:backgroundTint="#E1E89F"
         android:text="Continue"
         android:textColor="#000000"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.579"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.869" />
+        app:layout_constraintVertical_bias="0.939" />
 
     <ImageView
         android:id="@+id/imageView5"
-        android:layout_width="338dp"
-        android:layout_height="257dp"
+        android:layout_width="345dp"
+        android:layout_height="331dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"

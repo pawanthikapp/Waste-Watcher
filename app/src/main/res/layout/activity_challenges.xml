@@ -1,119 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/challengePage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="#56C15A"
+    android:backgroundTint="#BCF6BE"
     android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+
+
+
+    <TextView
+        android:id="@+id/challengeTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#00AFFF"
-        android:gravity="center_horizontal"
+        android:text="Challenges"
+        android:textColor="#000000"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.036" />
+
+
+    <LinearLayout
+        android:id="@+id/dailyChallengeCard"
+        android:layout_width="182dp"
+        android:layout_height="240dp"
+        android:layout_marginEnd="8dp"
+
+        android:background="#B67777"
+        android:backgroundTint="#D852EF"
+
+        android:gravity="center"
         android:orientation="vertical"
-        android:paddingBottom="16dp">
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/weeklyChallengeCard"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.277">
 
-        <!-- Title -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:fontFamily="sans-serif-medium"
-            android:padding="8dp"
-            android:text="Available Challenges"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold" />
 
-        <!-- Challenge 1 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- Challenge 2 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#3FE6FB"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
-                    android:text="Plastic Free Week"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#0A67B1"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingBottom="8dp"
-                    android:text="Avoid using plastic for an entire week. Document your experience and share results."
-                    android:textAlignment="center"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-
-                <Button
-                    android:id="@+id/btnJoinChallenge2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Join"
-                    android:textColor="@android:color/white" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Challenge 3 -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#3FE6FB"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
-                    android:text="Community Cleanup Drive"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#0A67B1"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingBottom="8dp"
-                    android:text="Join a group cleanup event in your area. Work together to make a big impact!"
-                    android:textAlignment="center"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-
-                <Button
-                    android:id="@+id/btnJoinChallenge3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Join"
-                    android:textColor="@android:color/white" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Add more challenges here if needed -->
+        <ImageView
+            android:layout_width="121dp"
+            android:layout_height="99dp"
+            android:contentDescription="Daily Icon"
+            android:src="@drawable/dailyc" />
 
     </LinearLayout>
-</ScrollView>
+
+    <LinearLayout
+        android:id="@+id/weeklyChallengeCard"
+        android:layout_width="184dp"
+        android:layout_height="240dp"
+        android:layout_marginStart="8dp"
+
+        android:background="#8E57EF"
+        android:backgroundTint="#8749F6"
+
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/dailyChallengeCard"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.28">
+
+        <ImageView
+            android:layout_width="138dp"
+            android:layout_height="113dp"
+            android:contentDescription="Weekly Icon"
+            android:src="@drawable/weekc" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
